@@ -11,7 +11,6 @@ import AddShoppingCartIcon from '@material-ui/icons/AddShoppingCart';
 import Badge from '@material-ui/core/Badge';
 
 import { Wrapper, StyledButton} from './App.styles';
-import { AnyCnameRecord } from 'node:dns';
 
 export interface CartItemType {
   id: number;
@@ -34,14 +33,34 @@ const App = () => {
     'products',
     getProducts
   );
-  console.log(data);
   
   const getTotalItems = (items: CartItemType[]) =>
     items.reduce((acc: number, item) => acc + item.amount, 0);
 
-  const handleAddToCart = (clickedItem: CartItemType) => null;
+  const handleAddToCart = (clickedItem: CartItemType) => {
+    setCartItems(arr => {
+      const isAddedItem = arr.find(item => item.id === clickedItem.id)
 
-  const handleRemoveFromCart = () => null;
+      if (isAddedItem) {
+        return arr.map(item =>
+          item.id === clickedItem.id ? { ...item, amount: item.amount + 1 } : item);
+      }
+      return [...arr, {...clickedItem, amount: 1}]
+    });
+  }
+
+  const handleRemoveFromCart = (id: number) => {
+    setCartItems(arr =>
+      arr.reduce((acc, item) => {
+        if (item.id === id) {
+          if (item.amount === 1) return acc;
+          return [...acc, { ...item, amount: item.amount = 1 }];
+        } else {
+          return [...acc, item];
+        }
+      }, [] as CartItemType[])
+    );
+  }
 
   if (isLoading) return <LinearProgress />;
   if (error) return <div>somethin went wrong...</div>
